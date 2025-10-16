@@ -1,4 +1,9 @@
 import Image from "next/image";
+import reviewImg from "@/assets/image/hightlight.jpg";
+import AnimatedDots from "@/component/AnimatedDotsClient";
+import { b } from "framer-motion/client";
+import { title } from "process";
+import { color } from "framer-motion";
 
 export default function Home() {
   return (
@@ -48,19 +53,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center pt-24 pb-20 px-6 md:px-12 overflow-hidden bg-gradient-to-br from-cyan-50 via-blue-50 to-white">
-        {/* Animated Dots Background */}
+        {/* Animated Dots Background (client-only) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-cyan-400 animate-pulse-dot"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-              }}
-            />
-          ))}
+          {/* AnimatedDots is a client component that generates random positions only on the client to avoid hydration mismatch */}
+          <AnimatedDots />
         </div>
 
         <div className="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center relative z-10">
@@ -291,47 +287,96 @@ export default function Home() {
 
       {/* Reviews Section */}
       <section className="relative py-20 px-6 md:px-12 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <Image src="https://ext.same-assets.com/409122903/3947927919.gif" alt="Reviews" width={100} height={100} className="mx-auto mb-6" />
-            <h2 className="text-4xl md:text-5xl font-bold">
-              Reviews That Highlight Our True Impact
+        <div className="relative max-w-7xl mx-auto">
+          {/* Background layer (absolute) - sits behind the content */}
+          <div className="absolute inset-0 flex items-start justify-center pointer-events-none z-0">
+            <div className="relative w-full h-64 md:h-96">
+              <Image src={reviewImg} alt="Highlight" fill className="object-cover" priority />
+            </div>
+          </div>
+
+          {/* Heading (above background) */}
+          <div className="relative z-10 text-center mb-40 pt-40">
+            <h2 className="text-5xl md:text-4xl font-bold text-white display-block">
+              Reviews That Highlight Our <span className="text-cyan-400">True Impact</span>
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                logo: "https://ext.same-assets.com/409122903/2135490664.png",
-                name: "CLEPX",
-                title: "INITIAL COIN OFFERING (ICO) PLATFORM TO RAISE CAPITAL FOR OUR OWN START-UP",
-                review: "CryptoApe listened to my project needs and created & maintained my Website, Apps in a timely reasonable manner. I would highly recommend them to anyone."
-              },
-              {
-                logo: "https://ext.same-assets.com/409122903/3722031134.png",
-                name: "OKEPAY",
-                title: "CRYPTO PAYMENT GATEWAY PLATFORM TO ACCEPT CRYPTO PAYMENTS",
-                review: "CryptoApe took our project, they worked tirelessly and always with great energy. My crypto payments platform came out better than I imagined - I wish I found them one year ago!"
-              },
-              {
-                logo: "https://ext.same-assets.com/409122903/2118341798.png",
-                name: "Moo ICO",
-                title: "",
-                review: "Working with CryptoApe on Moo ICO gave our project the confidence to scale globally. Their solution offered flawless token distribution, real-time tracking, and advanced compliance tools."
-              }
-            ].map((review, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all relative">
-                <Image src={review.logo} alt={review.name} width={120} height={40} className="mb-4 object-contain h-10" />
-                <h3 className="font-bold text-lg mb-2">{review.name}</h3>
-                {review.title && <p className="text-xs text-gray-500 uppercase mb-4">{review.title}</p>}
-                <p className="text-gray-600 text-sm leading-relaxed">{review.review}</p>
-                <div className="absolute top-6 right-6">
-                  <svg className="w-8 h-8 text-cyan-400 opacity-50" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/>
-                  </svg>
+          {/* animation CSS injected locally - marquee style to prevent pile-up */}
+          <style>{`
+            .flow-container { overflow: hidden; position: relative; }
+            .flow-item { will-change: transform, opacity; }
+
+            /* marquee track: duplicates content to create a seamless loop */
+            .marquee { overflow: hidden; width: 100%; }
+            .marquee-track { display: flex; gap: 3rem; align-items: stretch; }
+            /* Give each card a fixed responsive width to avoid an overly long track */
+            .marquee-track > * {
+              flex: 0 0 240px; /* base width for each item */
+              max-width: 240px;
+            }
+            @media (min-width: 768px) {
+              .marquee-track { gap: 2rem; }
+              .marquee-track > * { flex: 0 0 300px; max-width: 300px; }
+            }
+
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .animate-marquee { animation: marquee 20s linear infinite; }
+          `}</style>
+
+          <div className="flow-container relative z-10 -mt-8 marquee">
+            {(() => {
+              const reviewItems = [
+                {
+                  logo: "https://ext.same-assets.com/409122903/2135490664.png",
+                  name: "CLEPX",
+                  title: "INITIAL COIN OFFERING (ICO) PLATFORM TO RAISE CAPITAL FOR OUR OWN START-UP",
+                  review: "CryptoApe listened to my project needs and created & maintained my Website, Apps in a timely reasonable manner. I would highly recommend them to anyone."
+                },
+                {
+                  logo: "https://ext.same-assets.com/409122903/3722031134.png",
+                  name: "OKEPAY",
+                  title: "CRYPTO PAYMENT GATEWAY PLATFORM TO ACCEPT CRYPTO PAYMENTS",
+                  review: "CryptoApe took our project, they worked tirelessly and always with great energy. My crypto payments platform came out better than I imagined - I wish I found them one year ago!"
+                },
+                {
+                  logo: "https://ext.same-assets.com/409122903/2118341798.png",
+                  name: "Moo ICO",
+                  title: "INITIAL COIN OFFERING (ICO) PLATFORM TO RAISE CAPITAL FOR OUR OWN START-UP",
+                  review: "Working with CryptoApe on Moo ICO gave our project the confidence to scale globally. Their solution offered flawless token distribution, real-time tracking, and advanced compliance tools."
+                },
+                {
+                  logo: "https://ext.same-assets.com/409122903/2118341798.png",
+                  name: "Moo ICO",
+                  title: "INITIAL COIN OFFERING (ICO) PLATFORM TO RAISE CAPITAL FOR OUR OWN START-UP",
+                  review: "Working with CryptoApe on Moo ICO gave our project the confidence to scale globally. Their solution offered flawless token distribution, real-time tracking, and advanced compliance tools."
+                }
+              ];
+
+              // Duplicate the items to make the marquee loop seamless
+              const duplicated = [...reviewItems, ...reviewItems];
+
+              return (
+                <div className="marquee-track animate-marquee">
+                  {duplicated.map((review, i) => (
+                    <div key={i} className={`bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all relative flow-item`}>
+                      <Image src={review.logo} alt={review.name} width={120} height={40} className="mb-4 object-contain h-10 mx-auto" />
+                      <h3 className="font-bold text-lg mb-2">{review.name}</h3>
+                      {review.title && <p className="text-xs text-gray-500 uppercase mb-4">{review.title}</p>}
+                      <p className="text-gray-600 text-sm leading-relaxed">{review.review}</p>
+                      <div className="absolute top-6 right-6">
+                        <svg className="w-8 h-8 text-cyan-400 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
+              );
+            })()}
           </div>
         </div>
       </section>

@@ -9,6 +9,18 @@ export default {
   ],
   theme: {
     extend: {
+      keyframes: {
+        flow: {
+          '0%':   { transform: 'translateX(150%)', opacity: '0' },
+          '10%':  { opacity: '1' },
+          '50%':  { transform: 'translateX(0%)', opacity: '1' },
+          '90%':  { opacity: '1' },
+          '100%': { transform: 'translateX(-150%)', opacity: '0' },
+        },
+      },
+      animation: {
+        flow: 'flow 10s linear infinite',
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -72,6 +84,7 @@ export default {
         xl: '1280px',
         '2xl': '1536px',
       },
+      
       },
     }
   },
